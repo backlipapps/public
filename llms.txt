@@ -1,0 +1,13 @@
+# Backlip app catalog
+
+> Small, native ecommerce apps — one merchant job per app. Install from your platform's marketplace; pricing, plans, badges, and reviews live on each listing.
+
+- [Catalog — all 27 apps and integrations](https://backlipapps.github.io/public/): the full product &times; platform table with marketplace install links.
+- [BL Scrolling Announcement Bar](https://backlipapps.github.io/public/apps/bl-scrolling-announcement-bar.html): Keep timely store messages visible — free-shipping thresholds, promo codes, delivery updates — without a theme-development task. Native versions for Shopify, Wix, Ecwid, BigCommerce, and the Shoper Appstore.
+- [BL Bulk Product Image Uploader](https://backlipapps.github.io/public/apps/bl-bulk-product-image-uploader.html): Batch product photos matched to products by SKU, product ID, or handle — the native-marketplace alternative to CSV image imports. Shopify, Wix, WooCommerce, and Shopware.
+- [BL Country Blocker](https://backlipapps.github.io/public/apps/bl-country-blocker.html): Simple storefront country rules: block some countries, redirect others to the right store, allow the rest. Native versions for Shopify and Wix.
+- [BL External Links Button](https://backlipapps.github.io/public/apps/bl-external-links-button.html): External-link buttons for Shopify product pages: affiliate offers, dropshipping suppliers, marketplace listings, warranty pages. Fixed or per-product, with CSV bulk management.
+- [BL Logo Showcase](https://backlipapps.github.io/public/apps/bl-logo-showcase.html): A scrolling logo carousel for the storefront trust strip: client logos, partner brands, press mentions, or trust badges. Native versions for Shopify and Wix.
+- [apps.csv](https://backlipapps.github.io/public/apps.csv): machine-readable catalog — 50 install destinations.
+
+Primary source: https://backlip.com
