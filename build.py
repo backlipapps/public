@@ -98,8 +98,8 @@ ORG_JSONLD = {"@context": "https://schema.org", "@type": "Organization", "name":
               "url": "https://backlip.com", "email": "backlipapps@gmail.com",
               "sameAs": ["https://github.com/backlipapps"]}
 
-def shell(title, desc, jsonld, body, h1="Backlip", tag="Small, native ecommerce apps — one merchant job per app."):
-    nav = " ".join(f'<a href="{u}">{t}</a>' for t, u in NAV)
+def shell(title, desc, jsonld, body, h1="Backlip", tag="Small, native ecommerce apps — one merchant job per app.", medium="pages"):
+    nav = " ".join(f'<a href="{utm(u, medium, "public_catalog")}">{t}</a>' for t, u in NAV)
     tagline = f'\n  <p class="tag">{html.escape(tag)}</p>' if tag else ""
     return f"""<!doctype html>
 <html lang="en">
@@ -129,8 +129,30 @@ def shell(title, desc, jsonld, body, h1="Backlip", tag="Small, native ecommerce 
 </body>
 </html>"""
 
-def md_links(cell):
-    return re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', html.escape(cell))
+MKT_DOMAINS = ("apps.shopify.com", "www.wix.com", "www.ecwid.com", "www.bigcommerce.com",
+               "woocommerce.com", "store.shopware.com", "nuvemshop.com.br", "store.cafe24.com",
+               "shop.app", "marketplace.atlassian.com", "www.shoper.pl")
+
+def slugify(name):
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+def utm(url, medium, campaign):
+    """GitHub-surface UTM scheme (per .agents/product-marketing.md):
+    utm_source=github, utm_medium=readme|pages|app_page, utm_campaign=<app_slug>|public_catalog.
+    Applies only to backlip.com and marketplace URLs; file URLs (llms.txt) and
+    already-tagged URLs pass through untouched."""
+    if "utm_" in url or "llms.txt" in url:
+        return url
+    if "backlip.com" in url or any(d in url for d in MKT_DOMAINS):
+        sep = "&" if "?" in url else "?"
+        return f"{url}{sep}utm_source=github&utm_medium={medium}&utm_campaign={campaign}"
+    return url
+
+def md_links(cell, medium, campaign):
+    def repl(m):
+        url = m.group(2).split("?")[0]  # strip any source URLs' query (e.g. README UTMs) before re-tagging
+        return f'<a href="{utm(url, medium, campaign)}">{m.group(1)}</a>'
+    return re.sub(r"\[([^\]]+)\]\(([^)]+)\)", repl, html.escape(cell))
 
 def parse_table():
     rows = []
@@ -147,21 +169,21 @@ def app_page(slug, meta, row, product_page):
               "description": meta["meta"],
               "author": {"@type": "Organization", "name": "Backlip", "url": "https://backlip.com"},
               "url": product_page}
-    extra = "".join(f'\n    <li><a href="{u}">{html.escape(t)}</a></li>' for t, u in meta["links"])
+    extra = "".join(f'\n    <li><a href="{utm(u, "app_page", slug)}">{html.escape(t)}</a></li>' for t, u in meta["links"])
     body = f"""<p class="crumb"><a href="{BASE}">Catalog</a> &#8250; {html.escape(meta["row"])}</p>
 <p>{html.escape(meta["intro"])}</p>
 <p>{html.escape(meta["capabilities"])}</p>
 <p class="note">{html.escape(meta["boundary"])}</p>
 <h2>Install</h2>
-<p class="plist">{md_links(row[2])}</p>
+<p class="plist">{md_links(row[2], "app_page", slug)}</p>
 <h2>Learn more</h2>
 <ul>
-    <li><a href="{product_page}">Product page</a></li>{extra}
+    <li><a href="{utm(product_page, "app_page", slug)}">Product page</a></li>{extra}
 </ul>"""
-    return shell(meta["title"], meta["meta"], jsonld, body, h1=meta["row"], tag=None)
+    return shell(meta["title"], meta["meta"], jsonld, body, h1=meta["row"], tag=None, medium="app_page")
 
 def index_body(rows, app_list):
-    trs = "\n".join(f'        <tr><th scope="row">{html.escape(a)}</th><td>{html.escape(j)}</td><td class="links">{md_links(l)}</td></tr>' for a, j, l in rows)
+    trs = "\n".join(f'        <tr><th scope="row">{html.escape(a)}</th><td>{html.escape(j)}</td><td class="links">{md_links(l, "pages", slugify(a))}</td></tr>' for a, j, l in rows)
     apps_ul = "\n".join(f'    <li><a href="apps/{s}.html">{html.escape(m["row"])}</a> — {html.escape(m["meta"])}</li>' for s, m in app_list)
     return f"""<p class="note">A marketplace link proves a public install destination for that platform — not identical cross-platform features. Each listing shows what that build supports.</p>
 <h2>Catalog — 27 apps &amp; integrations, 11 platforms</h2>
@@ -178,8 +200,8 @@ def index_body(rows, app_list):
 <h2>Free tools</h2>
 <p>Client-side, free to use, no account:</p>
 <ul>
-<li><a href="https://backlip.com/tools/announcement-bar-message-generator/">Announcement Bar Message Generator</a> — write bar copy with a live scrolling preview, presets, and per-platform install links.</li>
-<li><a href="https://backlip.com/tools/size-chart-generator/">Size Chart Generator</a> — build a copy-pasteable size-chart table with live preview and cm/inch conversion.</li>
+<li><a href="{utm("https://backlip.com/tools/announcement-bar-message-generator/", "pages", "bl-scrolling-announcement-bar")}">Announcement Bar Message Generator</a> — write bar copy with a live scrolling preview, presets, and per-platform install links.</li>
+<li><a href="{utm("https://backlip.com/tools/size-chart-generator/", "pages", "bl-size-chart-button")}">Size Chart Generator</a> — build a copy-pasteable size-chart table with live preview and cm/inch conversion.</li>
 </ul>
 <h2>Machine-readable</h2>
 <ul>
@@ -215,12 +237,25 @@ def main():
             errors.append(f"{slug}: {mkt} marketplace anchors, expected {meta['expect_mkt']}")
         if page.count("<h1>") != 1 or "rel=" in page or 'href="https://backlip.com' not in page:
             errors.append(f"{slug}: structure check failed")
+        untagged = [u for u in re.findall(r'href="(https?://[^"]+)"', page)
+                    if ("backlip.com" in u or any(d in u for d in MKT_DOMAINS))
+                    and "llms.txt" not in u and "utm_source=github" not in u]
+        if untagged:
+            errors.append(f"{slug}: untagged links: {untagged[:2]}")
         open(os.path.join(HERE, "apps", slug + ".html"), "w", encoding="utf-8").write(page)
         app_list.append((slug, meta))
     desc = "Catalog of 27 Backlip apps and integrations across 11 platform marketplaces — Shopify, Wix, Ecwid, BigCommerce, WooCommerce, Shopware, Nuvemshop, Cafe24, the Shop app, Atlassian, and the Shoper Appstore. Install from your platform's marketplace."
     idx = shell("Backlip — small, native ecommerce apps, one job each", desc, ORG_JSONLD, index_body(rows, app_list))
     if "rel=" in idx or idx.count("<h1>") != 1:
         errors.append("index: structure check failed")
+    untagged = [u for u in re.findall(r'href="(https?://[^"]+)"', idx)
+                if ("backlip.com" in u or any(d in u for d in MKT_DOMAINS))
+                and "llms.txt" not in u and "utm_source=github" not in u]
+    if untagged:
+        errors.append(f"index: untagged links: {untagged[:2]}")
+    for fname in ("apps.csv", "llms.txt"):
+        if "utm_" in open(os.path.join(HERE, fname), encoding="utf-8").read():
+            errors.append(f"{fname} must stay canonical (no UTMs)")
     open(os.path.join(HERE, "index.html"), "w", encoding="utf-8").write(idx)
     today = datetime.date.today().isoformat()
     urls = [BASE] + [BASE + "apps/" + s + ".html" for s, _ in app_list]
