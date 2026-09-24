@@ -141,7 +141,7 @@ def utm(url, medium, campaign):
     utm_source=github, utm_medium=readme|pages|app_page, utm_campaign=<app_slug>|public_catalog.
     Applies only to backlip.com and marketplace URLs; file URLs (llms.txt) and
     already-tagged URLs pass through untouched."""
-    if "utm_" in url or "llms.txt" in url:
+    if "utm_" in url or url.endswith(("/llms.txt", "/llms-full.txt")):
         return url
     if "backlip.com" in url or any(d in url for d in MKT_DOMAINS):
         sep = "&" if "?" in url else "?"
@@ -239,7 +239,7 @@ def main():
             errors.append(f"{slug}: structure check failed")
         untagged = [u for u in re.findall(r'href="(https?://[^"]+)"', page)
                     if ("backlip.com" in u or any(d in u for d in MKT_DOMAINS))
-                    and "llms.txt" not in u and "utm_source=github" not in u]
+                    and not u.endswith(("/llms.txt", "/llms-full.txt")) and "utm_source=github" not in u]
         if untagged:
             errors.append(f"{slug}: untagged links: {untagged[:2]}")
         open(os.path.join(HERE, "apps", slug + ".html"), "w", encoding="utf-8").write(page)
@@ -250,7 +250,7 @@ def main():
         errors.append("index: structure check failed")
     untagged = [u for u in re.findall(r'href="(https?://[^"]+)"', idx)
                 if ("backlip.com" in u or any(d in u for d in MKT_DOMAINS))
-                and "llms.txt" not in u and "utm_source=github" not in u]
+                and not u.endswith(("/llms.txt", "/llms-full.txt")) and "utm_source=github" not in u]
     if untagged:
         errors.append(f"index: untagged links: {untagged[:2]}")
     for fname in ("apps.csv", "llms.txt"):

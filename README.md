@@ -7,8 +7,8 @@ platform's own marketplace; pricing, plans, badges, and reviews live on each lis
 > A marketplace link below proves a public install destination for that platform — not
 > identical cross-platform features. Each listing shows what that build supports.
 
-**Website:** https://backlip.com · **Catalog:** https://backlip.com/product/ ·
-**Solutions:** https://backlip.com/solutions/ · **Free tools:** https://backlip.com/tools/ ·
+**Website:** [https://backlip.com](https://backlip.com?utm_source=github&utm_medium=readme&utm_campaign=public_catalog) · **Catalog:** [https://backlip.com/product/](https://backlip.com/product/?utm_source=github&utm_medium=readme&utm_campaign=public_catalog) ·
+**Solutions:** [https://backlip.com/solutions/](https://backlip.com/solutions/?utm_source=github&utm_medium=readme&utm_campaign=public_catalog) · **Free tools:** [https://backlip.com/tools/](https://backlip.com/tools/?utm_source=github&utm_medium=readme&utm_campaign=public_catalog) ·
 **AI-crawler manifest:** https://backlip.com/llms.txt (full: https://backlip.com/llms-full.txt)
 
 ## Catalog
